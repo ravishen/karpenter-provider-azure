@@ -23,6 +23,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/profiles/latest/compute/mgmt/compute"
 	"github.com/Azure/karpenter-provider-azure/pkg/apis/v1beta1"
 	"github.com/Azure/karpenter-provider-azure/pkg/cache"
+	"github.com/Azure/karpenter-provider-azure/pkg/consts"
 	"github.com/Azure/karpenter-provider-azure/pkg/utils/zones"
 	"github.com/Azure/skewer"
 	. "github.com/onsi/gomega"
@@ -174,7 +175,7 @@ func TestMarkOfferingsUnavailableForCapacityTypeAndPlacement(t *testing.T) {
 	instanceType := createCommonErrorInstanceType(
 		zone1OnDemand, zone1Spot, zone2OnDemand, zone2Spot, regionalOnDemand, regionalSpot)
 
-	markOfferingsUnavailableForCapacityTypeAndPlacement(ctx, unavailableOfferings, sku, instanceType, testZone1, karpv1.CapacityTypeSpot, AllocationFailureReason, AllocationFailureTTL)
+	markOfferingsUnavailableForCapacityTypeAndPlacement(ctx, unavailableOfferings, sku, instanceType, testZone1, karpv1.CapacityTypeSpot, consts.AllocationFailureReason, AllocationFailureTTL)
 
 	g.Expect(unavailableOfferings.IsUnavailable(sku, testZone1, karpv1.CapacityTypeSpot)).To(BeTrue())
 	g.Expect(unavailableOfferings.IsUnavailable(sku, testZone2, karpv1.CapacityTypeSpot)).To(BeTrue())
@@ -190,7 +191,7 @@ func TestMarkOfferingsUnavailableForRegionalPlacement(t *testing.T) {
 	instanceType := createCommonErrorInstanceType(
 		zone1OnDemand, zone1Spot, zone2OnDemand, zone2Spot, regionalOnDemand, regionalSpot)
 
-	markOfferingsUnavailableForPlacementForBothCapacityTypes(ctx, unavailableOfferings, sku, instanceType, zones.Regional, AllocationFailureReason, AllocationFailureTTL)
+	markOfferingsUnavailableForPlacementForBothCapacityTypes(ctx, unavailableOfferings, sku, instanceType, zones.Regional, consts.AllocationFailureReason, AllocationFailureTTL)
 
 	g.Expect(unavailableOfferings.IsUnavailable(sku, zones.Regional, karpv1.CapacityTypeOnDemand)).To(BeTrue())
 	g.Expect(unavailableOfferings.IsUnavailable(sku, zones.Regional, karpv1.CapacityTypeSpot)).To(BeTrue())

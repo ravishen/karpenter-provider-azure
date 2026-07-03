@@ -24,6 +24,7 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/karpenter-provider-azure/pkg/cache"
+	"github.com/Azure/karpenter-provider-azure/pkg/consts"
 	"github.com/Azure/skewer"
 	corecloudprovider "sigs.k8s.io/karpenter/pkg/cloudprovider"
 )
@@ -104,12 +105,12 @@ func handleSKUNotAvailableForSubscriptionError(
 	errorCode,
 	errorMessage string,
 ) error {
-	markAllPlacementsUnavailableForBothCapacityTypes(ctx, unavailableOfferings, sku, instanceType, SKUNotAvailableReason, SKUNotAvailableOnDemandTTL)
+	markAllPlacementsUnavailableForBothCapacityTypes(ctx, unavailableOfferings, sku, instanceType, consts.SKUNotAvailableReason, SKUNotAvailableOnDemandTTL)
 
 	err := fmt.Errorf(
 		"VM size %s is not supported for this subscription in this location, for more details please visit: https://aka.ms/aks/vm-size-selector",
 		instanceType.Name)
-	return corecloudprovider.NewCreateError(err, SKUNotAvailableReason, err.Error())
+	return corecloudprovider.NewCreateError(err, consts.SKUNotAvailableReason, err.Error())
 }
 
 // For "Virtual Machine size: '%s' is not supported for subscription %s in location '%[3]s'. %s. Please refer to aka.ms/aks/vm-size-selector to find supported VM sizes in location '%[3]s'."

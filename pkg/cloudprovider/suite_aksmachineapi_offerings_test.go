@@ -48,7 +48,6 @@ import (
 	"github.com/Azure/karpenter-provider-azure/pkg/fake"
 	"github.com/Azure/karpenter-provider-azure/pkg/operator/options"
 	"github.com/Azure/karpenter-provider-azure/pkg/providers/instance"
-	"github.com/Azure/karpenter-provider-azure/pkg/providers/instance/offerings"
 	"github.com/Azure/karpenter-provider-azure/pkg/test"
 	. "github.com/Azure/karpenter-provider-azure/pkg/test/expectations"
 	"github.com/Azure/karpenter-provider-azure/pkg/utils/zones"
@@ -552,7 +551,7 @@ var _ = Describe("CloudProvider", func() {
 				// An unclassified failure keeps the generic Launched condition reason.
 				var createErr *corecloudprovider.CreateError
 				Expect(errors.As(err, &createErr)).To(BeTrue())
-				Expect(createErr.ConditionReason).To(Equal(CreateInstanceFailedReason))
+				Expect(createErr.ConditionReason).To(Equal(consts.CreateInstanceFailedReason))
 			})
 
 			It("should surface the specific failure reason on the Launched condition for a classified error", func() {
@@ -584,7 +583,7 @@ var _ = Describe("CloudProvider", func() {
 				// rather than being collapsed to the generic CreateInstanceFailed reason.
 				var createErr *corecloudprovider.CreateError
 				Expect(errors.As(err, &createErr)).To(BeTrue())
-				Expect(createErr.ConditionReason).To(Equal(offerings.ZonalAllocationFailureReason))
+				Expect(createErr.ConditionReason).To(Equal(consts.ZonalAllocationFailureReason))
 			})
 		})
 

@@ -43,6 +43,7 @@ import (
 
 	"github.com/Azure/karpenter-provider-azure/pkg/apis"
 	"github.com/Azure/karpenter-provider-azure/pkg/apis/v1beta1"
+	"github.com/Azure/karpenter-provider-azure/pkg/consts"
 	"github.com/Azure/karpenter-provider-azure/pkg/controllers/nodeclaim/inplaceupdate"
 	"github.com/Azure/karpenter-provider-azure/pkg/operator/options"
 
@@ -70,10 +71,7 @@ import (
 )
 
 const (
-	NodeClassReadinessUnknownReason    = "NodeClassReadinessUnknown"
-	InstanceTypeResolutionFailedReason = "InstanceTypeResolutionFailed"
-	CreateInstanceFailedReason         = "CreateInstanceFailed"
-	SpotConditionPreemptionScheduled   = "PreemptionScheduled"
+	SpotConditionPreemptionScheduled = "PreemptionScheduled"
 )
 
 var _ cloudprovider.CloudProvider = (*CloudProvider)(nil)
@@ -120,7 +118,7 @@ func (c *CloudProvider) validateNodeClass(nodeClass *v1beta1.AKSNodeClass) error
 		return cloudprovider.NewNodeClassNotReadyError(stderrors.New(nodeClassReady.Message))
 	}
 	if nodeClassReady.IsUnknown() {
-		return cloudprovider.NewCreateError(fmt.Errorf("resolving NodeClass readiness, NodeClass is in Ready=Unknown, %s", nodeClassReady.Message), NodeClassReadinessUnknownReason, "NodeClass is in Ready=Unknown")
+		return cloudprovider.NewCreateError(fmt.Errorf("resolving NodeClass readiness, NodeClass is in Ready=Unknown, %s", nodeClassReady.Message), consts.NodeClassReadinessUnknownReason, "NodeClass is in Ready=Unknown")
 	}
 	if _, err := nodeClass.GetKubernetesVersion(); err != nil {
 		return err
@@ -159,7 +157,7 @@ func (c *CloudProvider) Create(ctx context.Context, nodeClaim *karpv1.NodeClaim)
 	// Note: This filters out any instance types which we're out of capacity for
 	instanceTypes, err := c.resolveInstanceTypes(ctx, nodeClaim, nodeClass)
 	if err != nil {
-		return nil, cloudprovider.NewCreateError(fmt.Errorf("resolving instance types, %w", err), InstanceTypeResolutionFailedReason, truncateMessage(err.Error()))
+		return nil, cloudprovider.NewCreateError(fmt.Errorf("resolving instance types, %w", err), consts.InstanceTypeResolutionFailedReason, truncateMessage(err.Error()))
 	}
 	if len(instanceTypes) == 0 {
 		return nil, cloudprovider.NewInsufficientCapacityError(fmt.Errorf("all requested instance types were unavailable during launch"))
@@ -712,7 +710,7 @@ func truncateMessage(msg string) string {
 // it falls back to the generic CreateInstanceFailed reason and error text, preserving prior
 // behavior.
 func toCreateError(err error, wrapMsg string) error {
-	reason := CreateInstanceFailedReason
+	reason := consts.CreateInstanceFailedReason
 	message := err.Error()
 	if classified, ok := stderrors.AsType[*cloudprovider.CreateError](err); ok {
 		reason = classified.ConditionReason
